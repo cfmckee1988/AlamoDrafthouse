@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Alamo Drafthouse</string>
+    <string name="title_activity_main">Main</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_detail">Detail</string>
+
+</resources>
