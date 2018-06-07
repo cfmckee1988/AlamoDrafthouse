@@ -29,16 +29,13 @@
             android:text="Details View"
             />
     </RelativeLayout>
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:layout_marginTop="60dp"
         android:layout_marginBottom="100dp"
-        tools:context=".DetailsActivity" />
+        android:layout_height="match_parent"
+        />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -48,13 +45,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/url"
+            android:text="Website: "
             android:layout_centerVertical="true"
+            android:id="@+id/website"
             android:layout_marginLeft="15dp"
             />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:id="@+id/url"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="60dp"
+            android:layout_marginLeft="5dp"
+            android:layout_toEndOf="@+id/website"
+            />
         <ImageButton
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:id="@+id/favorite_btn"
             android:background="@drawable/baseline_favorite_border"
             android:layout_centerVertical="true"
