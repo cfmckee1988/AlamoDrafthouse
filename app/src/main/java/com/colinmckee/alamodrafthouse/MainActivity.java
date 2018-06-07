@@ -1,6 +1,5 @@
 package com.colinmckee.alamodrafthouse;
 
-import android.animation.FloatArrayEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +9,8 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,13 +18,10 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.colinmckee.alamodrafthouse.Adapters.FourSquareAdapter;
@@ -55,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnFourSquareClick
     private FourSquareView _fourSquareView;
     private ArrayList<FourSquare> _fourSquareList = new ArrayList<>();
     private FloatingActionButton _fab;
+    private DetailsListener _favoritesListener = new DetailsListener();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,11 +96,14 @@ public class MainActivity extends AppCompatActivity implements OnFourSquareClick
             public void onClick(View view) {
                 if (_fourSquareList == null || _fourSquareList.size() == 0) return;
 
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                Bundle extra = new Bundle();
-                extra.putSerializable("fourSquare", _fourSquareList);
-                intent.putExtra("extra", extra);
-                startActivity(intent);
+//                Bundle extra = new Bundle();
+//                extra.putSerializable("fourSquare", _fourSquareList);
+//                intent.putExtra("extra", extra);
+//                startActivity(intent);
+                MapsFragment mapsFragment = new MapsFragment();
+                mapsFragment.setFourSquareList(_fourSquareList);
+                mapsFragment.setOnFavoritesListener(_favoritesListener);
+                showFragment(mapsFragment, "MapsFragment");
             }
         });
     }
@@ -255,11 +257,11 @@ public class MainActivity extends AppCompatActivity implements OnFourSquareClick
                         JSONObject error = new JSONObject(response.msg);
                         if (error != null) {
                             JSONObject meta = error.getJSONObject("meta");
-                            if (meta != null) {
-                                String errorDetail = "Error: " + meta.getString("errorDetail");
-                                Snackbar.make(_fourSquareView, errorDetail, Snackbar.LENGTH_LONG)
-                                        .setAction("Action", null).show();
-                            }
+//                            if (meta != null) {
+//                                String errorDetail = "Error: " + meta.getString("errorDetail");
+//                                Snackbar.make(_fourSquareView, errorDetail, Snackbar.LENGTH_LONG)
+//                                        .setAction("Action", null).show();
+//                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -286,9 +288,10 @@ public class MainActivity extends AppCompatActivity implements OnFourSquareClick
 
         Log.d(TAG, fourSquare.getName());
 
-        Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-        intent.putExtra("fourSquareObject", fourSquare);
-        startActivity(intent);
+        DetailsFragment detailsFragment = new DetailsFragment();
+        detailsFragment.setFourSquareItem(fourSquare);
+        detailsFragment.setOnFavoritesListener(_favoritesListener);
+        showFragment(detailsFragment, "DetailsFragment");
     }
 
     @Override
@@ -306,5 +309,34 @@ public class MainActivity extends AppCompatActivity implements OnFourSquareClick
         if (_editText == null) return;
 
         Log.d(TAG, _editText.getText().toString());
+    }
+
+    private void showFragment(Fragment fragment, String name) {
+        if (_fab != null) {
+            _fab.setVisibility(View.GONE);
+        }
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.container, fragment);
+        transaction.addToBackStack(name);
+        transaction.commit();
+    }
+
+    private class DetailsListener implements DetailsFragment.OnDetailsListener {
+
+        @Override
+        public void onFavorited(FourSquare fs, boolean favorited) {
+            Log.d(TAG, "favorited: "+fs.getName());
+            if (_fourSquareView == null) return;
+
+            _fourSquareView.updateFourSquareItem(fs);
+        }
+
+        @Override
+        public void onDismissed() {
+            int count = getSupportFragmentManager().getBackStackEntryCount();
+            Log.d(TAG, "onDismissed count: "+count);
+            // If fragments are cleared, count will be 1 as this is called before the last clear
+            if (_fab != null && _fourSquareList.size() > 0 && count == 1) _fab.setVisibility(View.VISIBLE);
+        }
     }
 }

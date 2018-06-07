@@ -209,5 +209,11 @@ public class FourSquareView extends RecyclerView
         int lastVisibleItem = _llm.findLastVisibleItemPosition();
         return position < 0 || position == lastVisibleItem;
     }
+
+    public void notifyAdapterItemsChanged() {
+        if (_adapter == null) return;
+
+        _adapter.notifyDataSetChanged();
+    }
 }
 
